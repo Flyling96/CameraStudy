@@ -442,29 +442,39 @@ namespace Cinemachine
             public enum LimitMode
             {
                 None,
-
                 SceneLook,
             }
 
+            public enum RemoveLimitMode
+            {
+                None,
+                Once,
+            }
+
             public LimitMode m_LimitMode;
-
+            public RemoveLimitMode m_RemoveLimitMode;
             public Transform m_LookTarget;
-
             public Transform m_Camera;
-
             public float m_LimitRange;
-
             public Vector3 m_AxisVector;
+            public bool m_Enable;
 
             public AxisLimit(Transform lookTarget,Transform camera ,float limitRange, Vector3 axisVector)
             {
                 m_LimitMode = LimitMode.None;
+                m_RemoveLimitMode = RemoveLimitMode.None;
                 m_LookTarget = lookTarget;
                 m_Camera = camera;
                 m_LimitRange = limitRange;
                 m_AxisVector = axisVector;
+                m_Enable = true;
             }
 
+            public void Disable()
+            {
+                m_Enable = true;
+            }
+            
             public void Validate()
             {
                 m_LimitRange = Mathf.Max(0, m_LimitRange);
@@ -476,7 +486,26 @@ namespace Cinemachine
                 {
                     return;
                 }
-                else if(m_LimitMode == LimitMode.SceneLook)
+
+                if (!m_Enable)
+                {
+                    return;
+                }
+
+                if(m_RemoveLimitMode == RemoveLimitMode.Once)
+                {
+                    
+                    float input = Mathf.Abs(CinemachineCore.GetInputAxis("RightJoystickVertical"));
+                    input += Mathf.Abs(CinemachineCore.GetInputAxis("RightJoystickHorizontal"));
+                    if (input != 0)
+                    {
+                        m_Enable = false;
+                    }
+                }
+
+
+
+                if(m_LimitMode == LimitMode.SceneLook)
                 {
                     if(m_LookTarget == null || m_Camera == null)
                     {
@@ -487,6 +516,7 @@ namespace Cinemachine
                     float angle = Vector3.Angle(m_AxisVector,dir);
                     Vector3 normal = Vector3.Cross(m_AxisVector,dir);
                     angle *= Mathf.Sign(Vector3.Dot(normal, up));
+
                     if (isYAxis)
                     {
                         angle = (angle - (90 - fov)) / (fov * 2);
@@ -505,6 +535,7 @@ namespace Cinemachine
                 }
 
             }
+
         }
 
     }

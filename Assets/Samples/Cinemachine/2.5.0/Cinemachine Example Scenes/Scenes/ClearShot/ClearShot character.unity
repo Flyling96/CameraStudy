@@ -763,7 +763,12 @@ MonoBehaviour:
     m_BoostAmount: 0
     m_StartTime: 0
     m_Mode: 0
-    m_Event:
+    m_BeforeEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
+        Cinemachine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_AfterEvent:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
@@ -774,7 +779,12 @@ MonoBehaviour:
     m_BoostAmount: 0
     m_StartTime: 0
     m_Mode: 0
-    m_Event:
+    m_BeforeEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
+        Cinemachine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_AfterEvent:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
@@ -1964,7 +1974,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 924382199}
-  m_LocalRotation: {x: -0.05469949, y: 0.05337176, z: 0.0029279867, w: 0.99707115}
+  m_LocalRotation: {x: -0.05469949, y: 0.053371757, z: 0.0029279864, w: 0.99707115}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2254,7 +2264,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1130702790}
-  m_LocalRotation: {x: -0.19981083, y: 0.05237103, z: 0.010695622, w: 0.9783755}
+  m_LocalRotation: {x: -0.19981083, y: 0.052370995, z: 0.010695616, w: 0.9783755}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2627,7 +2637,12 @@ MonoBehaviour:
     m_BoostAmount: 0
     m_StartTime: 0
     m_Mode: 0
-    m_Event:
+    m_BeforeEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
+        Cinemachine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_AfterEvent:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
@@ -2638,7 +2653,12 @@ MonoBehaviour:
     m_BoostAmount: 0
     m_StartTime: 0
     m_Mode: 0
-    m_Event:
+    m_BeforeEvent:
+      m_PersistentCalls:
+        m_Calls: []
+      m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
+        Cinemachine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_AfterEvent:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: Cinemachine.CinemachineTriggerAction+ActionSettings+TriggerEvent,
@@ -3462,7 +3482,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 50
+  field of view: 40
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -3487,8 +3507,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1401032672}
-  m_LocalRotation: {x: -0.0001191164, y: 0.03462254, z: 0.0000041268345, w: 0.9994005}
-  m_LocalPosition: {x: 4.790357, y: 2.3000002, z: -6.9926662}
+  m_LocalRotation: {x: -0.013023344, y: 0.96780235, z: -0.05121464, w: -0.24610193}
+  m_LocalPosition: {x: 16.62, y: 5.28, z: 17.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -4013,7 +4033,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1794756918}
-  m_LocalRotation: {x: -0.013506263, y: 0.9808723, z: -0.17963341, w: -0.07374978}
+  m_LocalRotation: {x: -0.013506252, y: 0.9808723, z: -0.1796334, w: -0.07374977}
   m_LocalPosition: {x: 12.3, y: 21.2, z: 44.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4343,7 +4363,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1882019631}
-  m_LocalRotation: {x: 0.054612223, y: 0.034570817, z: -0.0018919513, w: 0.9979072}
+  m_LocalRotation: {x: 0.054612223, y: 0.034570813, z: -0.0018919462, w: 0.9979072}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:

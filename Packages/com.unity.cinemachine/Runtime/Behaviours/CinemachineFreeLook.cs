@@ -186,6 +186,13 @@ namespace Cinemachine
             InvalidateRigCache();
         }
 
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            m_XAxisLimit.Disable();
+            m_YAxisLimit.Disable();
+        }
+
         /// <summary>Makes sure that the child rigs get destroyed in an undo-firndly manner.
         /// Invalidates the rig cache.</summary>
         protected override void OnDestroy()
@@ -293,7 +300,7 @@ namespace Cinemachine
         override public void InternalUpdateCameraState(Vector3 worldUp, float deltaTime)
         {
             UpdateRigCache();
-
+     
             // Update the current state by invoking the component pipeline
             Vector3 prePos = m_State.FinalPosition;
             m_State = CalculateNewState(worldUp, deltaTime, prePos);
@@ -853,6 +860,12 @@ namespace Cinemachine
                     m_CachedOrbits[i] = m_Orbits[i];
                 m_CachedTension = m_SplineCurvature;
             }
+        }
+
+        public void ChangeAxisLimitTarget(Transform newTarget)
+        {
+            m_XAxisLimit.m_LookTarget = newTarget;
+            m_YAxisLimit.m_LookTarget = newTarget;
         }
     }
 }

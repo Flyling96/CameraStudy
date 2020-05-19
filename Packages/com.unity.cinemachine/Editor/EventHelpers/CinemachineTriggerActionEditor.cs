@@ -60,8 +60,10 @@ namespace Cinemachine.Editor
             mExitExpanded = DrawActionSettings(FindProperty(x => x.m_OnObjectExit), mExitExpanded);
         }
 
+
         bool DrawActionSettings(SerializedProperty property, bool expanded)
         {
+            float height = EditorGUIUtility.singleLineHeight;
             if (mFoldoutStyle == null)
                 mFoldoutStyle = new GUIStyle(EditorStyles.foldout) { fontStyle = FontStyle.Bold };
 
@@ -69,6 +71,24 @@ namespace Cinemachine.Editor
             expanded = EditorGUI.Foldout(r, expanded, property.displayName, true, mFoldoutStyle);
             if (expanded)
             {
+                SerializedProperty triggerMode = property.FindPropertyRelative(()=> def.m_TriggerMode);
+                triggerMode.intValue = EditorGUILayout.MaskField(triggerMode.displayName,triggerMode.intValue, triggerMode.enumNames);
+
+                int index = 1 << (int)CinemachineTriggerAction.ActionSettings.TriggerMode.InputAxis;
+                bool isInputTrigger = (triggerMode.intValue & index) == index;
+                if (isInputTrigger)
+                {
+                    SerializedProperty inputName = property.FindPropertyRelative(() => def.m_TriggerInputAxisName);
+                    EditorGUILayout.PropertyField(inputName);
+                }
+                index = 1 << (int)CinemachineTriggerAction.ActionSettings.TriggerMode.InputButton;
+                isInputTrigger = (triggerMode.intValue & index) == index;
+                if (isInputTrigger)
+                {
+                    SerializedProperty inputName = property.FindPropertyRelative(() => def.m_TriggerInputButtonName);
+                    EditorGUILayout.PropertyField(inputName);
+                }
+
                 SerializedProperty actionProp = property.FindPropertyRelative(() => def.m_Action);
                 EditorGUILayout.PropertyField(actionProp);
 
@@ -132,8 +152,12 @@ namespace Cinemachine.Editor
                     EditorGUILayout.HelpBox("No action will be taken because target is not valid", MessageType.Info);
 
                 EditorGUILayout.Space();
-                EditorGUILayout.LabelField("This event will be invoked.  Add calls to custom methods here:");
-                EditorGUILayout.PropertyField(property.FindPropertyRelative(() => def.m_Event));
+                EditorGUILayout.LabelField("这些事件将在触发事件前执行");
+                EditorGUILayout.PropertyField(property.FindPropertyRelative(() => def.m_BeforeEvent));
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("这些事件将在触发事件后执行");
+                EditorGUILayout.PropertyField(property.FindPropertyRelative(() => def.m_AfterEvent));
             }
             property.serializedObject.ApplyModifiedProperties();
             return expanded;

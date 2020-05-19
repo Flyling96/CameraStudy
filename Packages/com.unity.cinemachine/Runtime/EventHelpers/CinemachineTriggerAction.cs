@@ -48,6 +48,7 @@ namespace Cinemachine
         [Tooltip("Repeat the action for all subsequent trigger entries")]
         public bool m_Repeating = true;
 
+
         /// <summary>Defines what action to take on trigger enter/exit</summary>
         [Serializable]
         public struct ActionSettings
@@ -73,8 +74,25 @@ namespace Cinemachine
                 Stop
             }
 
+            /// <summary>
+            /// 触发方式，默认为碰撞体
+            /// </summary>
+            public enum TriggerMode
+            {
+                Collider,
+                InputAxis,
+                InputButton,
+                OtherTrigger,
+            }
+
             /// <summary>Serializable parameterless game event</summary>
             [Serializable] public class TriggerEvent : UnityEvent {}
+
+            /// <summary>触发方式</summary>
+            public TriggerMode m_TriggerMode;
+
+            public string m_TriggerInputAxisName;
+            public string m_TriggerInputButtonName;
 
             /// <summary>What action to take</summary>
             [Tooltip("What action to take")]
@@ -100,8 +118,11 @@ namespace Cinemachine
             public TimeMode m_Mode;
 
             /// <summary>This event will be invoked</summary>
-            [Tooltip("This event will be invoked")]
-            public TriggerEvent m_Event;
+            [Tooltip("这些事件在触发前执行")]
+            public TriggerEvent m_BeforeEvent;
+
+            [Tooltip("这些事件在触发之后执行")]
+            public TriggerEvent m_AfterEvent;
 
             /// <summary>Constructor</summary>
             public ActionSettings(Mode action)
@@ -111,7 +132,11 @@ namespace Cinemachine
                 m_BoostAmount = 0;
                 m_StartTime = 0;
                 m_Mode = TimeMode.FromStart;
-                m_Event = new TriggerEvent();
+                m_BeforeEvent = new TriggerEvent();
+                m_AfterEvent = new TriggerEvent();
+                m_TriggerMode = TriggerMode.Collider;
+                m_TriggerInputAxisName = "";
+                m_TriggerInputButtonName = "";
             }
 
             /// <summary>Invoke the action.  Depending on the mode, different action will
@@ -119,6 +144,7 @@ namespace Cinemachine
             /// action specified by the Mode.</summary>
             public void Invoke()
             {
+                m_BeforeEvent.Invoke();
                 UnityEngine.Object currentTarget = m_Target;
                 if (currentTarget != null)
                 {
@@ -220,7 +246,50 @@ namespace Cinemachine
                             }
                     }
                 }
-                m_Event.Invoke();
+                m_AfterEvent.Invoke();
+            }
+
+            public void TriggerInvoke()
+            {
+                bool isInvoke = false;
+                if (IsSelectTriggerType(TriggerMode.InputAxis))
+                {
+                    string[] strs = m_TriggerInputAxisName.Split(';');
+                    float input = 0;
+                    for(int i = 0;i < strs.Length;i++)
+                    {
+                        input += Mathf.Abs(CinemachineCore.GetInputAxis(strs[i]));
+                    }
+                    if (input != 0) isInvoke = true;
+                }
+
+                if (!isInvoke && IsSelectTriggerType(TriggerMode.InputButton))
+                {
+                    string[] strs = m_TriggerInputButtonName.Split(';');
+                    float input = 0;
+                    for (int i = 0; i < strs.Length; i++)
+                    {
+                        input += Mathf.Abs(CinemachineCore.GetInputAxis(strs[i]));
+                    }
+                    if (input != 0) isInvoke = true;
+                }
+
+                if (isInvoke)
+                {
+                    Invoke();
+                }
+
+            }
+
+            public bool IsSelectTriggerType(TriggerMode type)
+            {
+                int index = 1 << (int)type;
+                int result = (int)m_TriggerMode;
+                if ((result & index) == index)
+                {
+                    return true;
+                }
+                return false;
             }
         }
 
@@ -248,6 +317,8 @@ namespace Cinemachine
 
         void InternalDoTriggerEnter(GameObject other)
         {
+            if (!m_OnObjectEnter.IsSelectTriggerType(ActionSettings.TriggerMode.Collider))
+                return;
             if (!Filter(other))
                 return;
             --m_SkipFirst;
@@ -265,6 +336,8 @@ namespace Cinemachine
             if (!m_ActiveTriggerObjects.Contains(other))
                 return;
             m_ActiveTriggerObjects.Remove(other);
+            if (!m_OnObjectExit.IsSelectTriggerType(ActionSettings.TriggerMode.Collider))
+                return;
             if (enabled)
                 m_OnObjectExit.Invoke();
         }
@@ -281,7 +354,22 @@ namespace Cinemachine
         void OnCollisionEnter2D(Collision2D other) { InternalDoTriggerEnter(other.gameObject); }
         void OnCollisionExit2D(Collision2D other) { InternalDoTriggerExit(other.gameObject); }
 #endif
-        void OnEnable() {} // For the Enabled checkbox
+        void OnEnable()
+        {
+            CancelInvoke();
+            InvokeRepeating("TriggerInvoke",0.2f,0.2f);
+        } // For the Enabled checkbox
+
+        void TriggerInvoke()
+        {
+            m_OnObjectEnter.TriggerInvoke();
+            m_OnObjectExit.TriggerInvoke();
+        }
+
+        public void OtherTrigger()
+        {
+
+        }
     }
 #endif
 }

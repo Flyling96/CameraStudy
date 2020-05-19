@@ -24,8 +24,10 @@ namespace Cinemachine.Editor
                 EditorGUI.PropertyField(rect, property.FindPropertyRelative(() => def.m_LimitMode));
                 if(IsAxisLimit(property))
                 {
-                    rect.y += height + vSpace;
-                    InspectorUtility.MultiPropertyOnLine(
+                   rect.y += height + vSpace;
+                   EditorGUI.PropertyField(rect, property.FindPropertyRelative(() => def.m_RemoveLimitMode));
+                   rect.y += height + vSpace;
+                   InspectorUtility.MultiPropertyOnLine(
                    rect, null,
                    new[] { property.FindPropertyRelative(() => def.m_LookTarget),
                             property.FindPropertyRelative(() => def.m_Camera)},
@@ -51,7 +53,7 @@ namespace Cinemachine.Editor
                 int lines = 2;
                 if(IsAxisLimit(property))
                 {
-                    lines = 4;
+                    lines = 5;
                 }
                 height *= lines;
             }
