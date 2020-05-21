@@ -66,6 +66,7 @@
     <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineBlenderSettingsEditor.cs" />
     <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineBlendListCameraEditor.cs" />
     <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineBrainEditor.cs" />
+    <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineCameraOffsetEditor.cs" />
     <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineClearShotEditor.cs" />
     <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineColliderEditor.cs" />
     <Compile Include="Packages\com.unity.cinemachine\Editor\Editors\CinemachineComposerEditor.cs" />

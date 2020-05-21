@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Playables;
@@ -86,7 +87,8 @@ namespace Cinemachine
             }
 
             /// <summary>Serializable parameterless game event</summary>
-            [Serializable] public class TriggerEvent : UnityEvent {}
+            [Serializable] public class TriggerEvent : UnityEvent { }
+
 
             /// <summary>´¥·¢·½Ê½</summary>
             public TriggerMode m_TriggerMode;
@@ -134,7 +136,7 @@ namespace Cinemachine
                 m_Mode = TimeMode.FromStart;
                 m_BeforeEvent = new TriggerEvent();
                 m_AfterEvent = new TriggerEvent();
-                m_TriggerMode = TriggerMode.Collider;
+                m_TriggerMode = (TriggerMode)(1 << (int)TriggerMode.Collider) ;
                 m_TriggerInputAxisName = "";
                 m_TriggerInputButtonName = "";
             }
@@ -366,9 +368,14 @@ namespace Cinemachine
             m_OnObjectExit.TriggerInvoke();
         }
 
-        public void OtherTrigger()
+        public void OtherTriggerEnter()
         {
+            m_OnObjectEnter.TriggerInvoke();
+        }
 
+        public void OtherTriggerExit()
+        {
+            m_OnObjectExit.TriggerInvoke();
         }
     }
 #endif
