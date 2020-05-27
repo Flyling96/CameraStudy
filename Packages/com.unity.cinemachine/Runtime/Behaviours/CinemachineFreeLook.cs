@@ -70,6 +70,9 @@ namespace Cinemachine
         [Tooltip("Controls how automatic recentering of the Y axis is accomplished")]
         public AxisState.Recentering m_YAxisRecentering = new AxisState.Recentering(false, 1, 2);
 
+        [Tooltip("根据坡度来自动调整俯仰角,影响坡度的碰撞体")]
+        public LayerMask m_AutoAdjustYAxisColliderLayer = 1;
+
         /// <summary>The Horizontal axis.  Value is -180...180.  This is passed on to the rigs' OrbitalTransposer component</summary>
         [Tooltip("The Horizontal axis.  Value is -180...180.  This is passed on to the rigs' OrbitalTransposer component")]
         [AxisStateProperty]
@@ -450,6 +453,7 @@ namespace Cinemachine
 
         CameraState m_State = CameraState.Default;          // Current state this frame
 
+        public bool m_IsBodyNothing = false;
         /// Serialized in order to support copy/paste
         [SerializeField][HideInInspector][NoSaveDuringPlay] private CinemachineVirtualCamera[] m_Rigs
             = new CinemachineVirtualCamera[3];
@@ -630,19 +634,32 @@ namespace Cinemachine
                         if (mOrbitals[i] == null && go.name == rigNames[i])
                         {
                             // Must have an orbital transposer or it's no good
-                            mOrbitals[i] = vcam.GetCinemachineComponent<CinemachineOrbitalTransposer>();
-                            if (mOrbitals[i] == null && forceOrbital)
-                                mOrbitals[i] = vcam.AddCinemachineComponent<CinemachineOrbitalTransposer>();
-                            if (mOrbitals[i] != null)
+                            if (m_IsBodyNothing)
                             {
-                                mOrbitals[i].m_HeadingIsSlave = true;
-                                mOrbitals[i].m_XAxis.m_InputAxisName = string.Empty;
-                                mOrbitals[i].HeadingUpdater = UpdateXAxisHeading;
-                                mOrbitals[i].m_RecenterToTargetHeading.m_enabled = false;
-                                m_Rigs[i] = vcam;
-                                m_Rigs[i].m_StandbyUpdate = m_StandbyUpdate;
+                                mOrbitals[i] = null;
+                                if(vcam.GetCinemachineComponent<CinemachineOrbitalTransposer>() != null)
+                                {
+                                    vcam.DestroyCinemachineComponent<CinemachineOrbitalTransposer>();
+                                }
                                 ++rigsFound;
                             }
+                            else
+                            {
+                                mOrbitals[i] = vcam.GetCinemachineComponent<CinemachineOrbitalTransposer>();
+                                if (mOrbitals[i] == null && forceOrbital)
+                                    mOrbitals[i] = vcam.AddCinemachineComponent<CinemachineOrbitalTransposer>();
+                                if (mOrbitals[i] != null)
+                                {
+                                    mOrbitals[i].m_HeadingIsSlave = true;
+                                    mOrbitals[i].m_XAxis.m_InputAxisName = string.Empty;
+                                    mOrbitals[i].HeadingUpdater = UpdateXAxisHeading;
+                                    mOrbitals[i].m_RecenterToTargetHeading.m_enabled = false;
+                                    ++rigsFound;
+                                }
+                            }
+
+                            m_Rigs[i] = vcam;
+                            m_Rigs[i].m_StandbyUpdate = m_StandbyUpdate;
                         }
                     }
                 }
@@ -702,10 +719,13 @@ namespace Cinemachine
                 // Hide the rigs from prying eyes
                 CinemachineVirtualCamera.SetFlagsForHiddenChild(m_Rigs[i].gameObject);
 #endif
-                mOrbitals[i].m_FollowOffset = GetLocalPositionForCameraFromInput(GetYAxisValue());
-                mOrbitals[i].m_BindingMode = m_BindingMode;
-                mOrbitals[i].m_Heading = m_Heading;
-                mOrbitals[i].m_XAxis.Value = m_XAxis.Value;
+                if (mOrbitals[i] != null)
+                {
+                    mOrbitals[i].m_FollowOffset = GetLocalPositionForCameraFromInput(GetYAxisValue());
+                    mOrbitals[i].m_BindingMode = m_BindingMode;
+                    mOrbitals[i].m_Heading = m_Heading;
+                    mOrbitals[i].m_XAxis.Value = m_XAxis.Value;
+                }
 
                 // Hack to get SimpleFollow with heterogeneous dampings to work
                 if (m_BindingMode == CinemachineTransposer.BindingMode.SimpleFollowWithWorldUp)
@@ -723,24 +743,28 @@ namespace Cinemachine
         private float GetYRecenterTarget(Vector3 preCameraPos)
         {
             float recenterTarget = 0.5f;
+            if (m_AutoAdjustYAxisColliderLayer == 0)
+            {
+                return recenterTarget;
+            }
             Ray cameraDownRay = new Ray(preCameraPos, Vector3.down);
             RaycastHit hitInfo = new RaycastHit();
             float rayLength = 20;
-            LayerMask layerMask = LayerMask.NameToLayer("Terrain");
+            //LayerMask layerMask = LayerMask.NameToLayer("Terrain") ;
             Vector3 cameraDownPoint;
             if (!Physics.Raycast(
-                cameraDownRay, out hitInfo, rayLength, ~layerMask,
+                cameraDownRay, out hitInfo, rayLength, m_AutoAdjustYAxisColliderLayer,
                 QueryTriggerInteraction.Ignore))
             {
                 return recenterTarget;
             }
             cameraDownPoint = cameraDownRay.GetPoint(hitInfo.distance);
 
-            Vector3 followToCameraDown = m_Follow.position - cameraDownPoint;
-            Ray followDownRay = new Ray(m_Follow.position, Vector3.down);
+            Vector3 followToCameraDown = Follow.position - cameraDownPoint;
+            Ray followDownRay = new Ray(Follow.position, Vector3.down);
             Vector3 followDownPoint;
             if (!Physics.Raycast(
-                followDownRay, out hitInfo, rayLength, ~layerMask,
+                followDownRay, out hitInfo, rayLength, m_AutoAdjustYAxisColliderLayer,
                 QueryTriggerInteraction.Ignore))
             {
                 return recenterTarget;
@@ -750,11 +774,11 @@ namespace Cinemachine
 
             if (dir.y > 0)
             {
-                Vector3 forwardRayPonit = new Vector3(m_Follow.position.x + followToCameraDown.x * 5, preCameraPos.y, m_Follow.position.z + followToCameraDown.z * 5);
+                Vector3 forwardRayPonit = new Vector3(Follow.position.x + followToCameraDown.x * 5, preCameraPos.y, Follow.position.z + followToCameraDown.z * 5);
                 Ray forwardDownRay = new Ray(forwardRayPonit, Vector3.down);
                 Vector3 forwardDownPoint;
                 if (Physics.Raycast(
-                    forwardDownRay, out hitInfo, 100, ~layerMask,
+                    forwardDownRay, out hitInfo, 100, m_AutoAdjustYAxisColliderLayer,
                     QueryTriggerInteraction.Ignore))
                 {
                     forwardDownPoint = forwardDownRay.GetPoint(hitInfo.distance);
@@ -763,8 +787,6 @@ namespace Cinemachine
                 }
             }
 
-
-         
             float dirXZ = Mathf.Sqrt(dir.x * dir.x + dir.z * dir.z);
             float maxSlope = 60 * Mathf.Deg2Rad;
             float middleSlope = 20 * Mathf.Deg2Rad;

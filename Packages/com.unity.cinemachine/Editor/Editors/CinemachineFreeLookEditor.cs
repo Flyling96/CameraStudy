@@ -129,8 +129,15 @@ namespace Cinemachine
                         else
                         {
                             go = rig.GetComponentOwner().gameObject;
-                            Undo.RecordObject(Undo.AddComponent<CinemachineOrbitalTransposer>(go), "creating rig");
-                            Undo.RecordObject(Undo.AddComponent<CinemachineComposer>(go), "creating rig");
+                            if (!vcam.m_IsBodyNothing)
+                            {
+                                Undo.RecordObject(Undo.AddComponent<CinemachineOrbitalTransposer>(go), "creating rig");
+                                Undo.RecordObject(Undo.AddComponent<CinemachineComposer>(go), "creating rig");
+                            }
+                            else
+                            {
+                                Undo.RecordObject(Undo.AddComponent<CinemachineGroupComposer>(go), "creating rig");
+                            }
                         }
                         return rig;
                     };

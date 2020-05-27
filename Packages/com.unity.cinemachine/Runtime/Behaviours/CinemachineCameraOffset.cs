@@ -73,7 +73,7 @@ public class CinemachineCameraOffset : CinemachineExtension
             {
                 if (m_AdjustNearFarRange.x >= m_AdjustNearFarRange.y) return;
                 Quaternion inverseRawOrientation = Quaternion.Inverse(state.RawOrientation);
-                float dis = (inverseRawOrientation * (vcam.LookAt.position - state.FinalPosition)).z;
+                float dis = (inverseRawOrientation * (vcam.Follow.position - state.FinalPosition)).z;
                 if (dis < m_AdjustNearFarRange.x)
                 {
                     dis = dis - m_AdjustNearFarRange.x;
@@ -144,7 +144,7 @@ public class CinemachineCameraOffset : CinemachineExtension
             state.PositionCorrection += offset;
             if (!preserveAim)
             {
-                state.ReferenceLookAt += offset;
+                //state.ReferenceLookAt += offset;
             }
             else
             {
@@ -155,7 +155,6 @@ public class CinemachineCameraOffset : CinemachineExtension
             }
 
             m_AutoAdjust.AutoAdjustOffset(vcam, state, deltaTime, ref m_Offset);
-
         }
     }
 
@@ -175,6 +174,6 @@ public class CinemachineCameraOffset : CinemachineExtension
         m_AutoAdjust.m_IsTrigger = false;
     }
 
-
+    
 }
 

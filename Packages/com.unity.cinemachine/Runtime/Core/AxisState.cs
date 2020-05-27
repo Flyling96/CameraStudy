@@ -472,7 +472,7 @@ namespace Cinemachine
 
             public void Disable()
             {
-                m_Enable = true;
+                m_Enable = false;
             }
             
             public void Validate()

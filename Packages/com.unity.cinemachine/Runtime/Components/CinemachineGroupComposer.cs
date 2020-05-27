@@ -143,9 +143,9 @@ namespace Cinemachine
 
             // Get the bounding box from camera's POV in view space
             Vector3 up = curState.ReferenceUp;
-            var cameraPos = curState.RawPosition;
             BoundingSphere s = group.Sphere;
             Vector3 groupCenter = s.position;
+            Vector3 cameraPos = curState.RawPosition;
             Vector3 fwd = groupCenter - cameraPos;
             float d = fwd.magnitude;
             if (d < Epsilon)
@@ -213,7 +213,7 @@ namespace Cinemachine
                         targetDistance, boundsDepth + m_MinimumDistance, boundsDepth + m_MaximumDistance);
 
                     // Clamp to respect min/max camera movement
-                    float targetDelta = targetDistance - Vector3.Distance(curState.RawPosition, groupCenter);
+                    float targetDelta = targetDistance - Vector3.Distance(cameraPos, groupCenter);
                     targetDelta = Mathf.Clamp(targetDelta, -m_MaxDollyIn, m_MaxDollyOut);
 
                     // ApplyDamping

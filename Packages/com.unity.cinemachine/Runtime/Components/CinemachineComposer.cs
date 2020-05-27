@@ -405,6 +405,7 @@ namespace Cinemachine
             ref CameraState state, Rect screenRect, Vector3 trackedPoint,
             ref Quaternion rigOrientation, float fov, float fovH, float deltaTime)
         {
+
             Vector3 targetDir = trackedPoint - state.CorrectedPosition;
             Vector2 rotToRect = rigOrientation.GetCameraRotationToTarget(targetDir, state.ReferenceUp);
 
