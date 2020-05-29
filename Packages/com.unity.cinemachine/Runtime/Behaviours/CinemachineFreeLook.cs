@@ -187,6 +187,8 @@ namespace Cinemachine
             m_ChildExecuteExtension = false;
             base.OnEnable();
             InvalidateRigCache();
+            m_XAxisLimit.Enable();
+            m_YAxisLimit.Enable();
         }
 
         protected override void OnDisable()

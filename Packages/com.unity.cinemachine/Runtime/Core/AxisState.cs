@@ -470,6 +470,11 @@ namespace Cinemachine
                 m_Enable = true;
             }
 
+            public void Enable()
+            {
+                m_Enable = true;
+            }
+
             public void Disable()
             {
                 m_Enable = false;
@@ -513,16 +518,19 @@ namespace Cinemachine
                     }
 
                     Vector3 dir = m_LookTarget.position - m_Camera.position;
-                    float angle = Vector3.Angle(m_AxisVector,dir);
-                    Vector3 normal = Vector3.Cross(m_AxisVector,dir);
+                    if(!isYAxis)dir.y = 0;
+                    dir = dir.normalized;
+                    float angle = Vector3.Angle(m_AxisVector, dir);
+                    Vector3 normal = Vector3.Cross(m_AxisVector, dir);
                     angle *= Mathf.Sign(Vector3.Dot(normal, up));
 
                     if (isYAxis)
-                    {
+                    {      
                         angle = (angle - (90 - fov)) / (fov * 2);
                     }
                     else
                     {
+
                         if (!axis.ValueRangeLocked)
                         {
                             axis.m_MaxValue = angle + m_LimitRange;

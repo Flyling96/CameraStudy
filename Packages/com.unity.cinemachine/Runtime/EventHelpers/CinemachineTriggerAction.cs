@@ -251,7 +251,7 @@ namespace Cinemachine
                 m_AfterEvent.Invoke();
             }
 
-            public void TriggerInvoke()
+            public bool TriggerInvoke()
             {
                 bool isInvoke = false;
                 if (IsSelectTriggerType(TriggerMode.InputAxis))
@@ -280,6 +280,7 @@ namespace Cinemachine
                 {
                     Invoke();
                 }
+                return isInvoke;
 
             }
 
@@ -295,6 +296,8 @@ namespace Cinemachine
             }
         }
 
+        public bool m_LimitEnterExit = true;
+        bool m_IsObjectEnter = false;
         /// <summary>What action to take when an eligible object enters the collider or trigger zone</summary>
         public ActionSettings m_OnObjectEnter = new ActionSettings(ActionSettings.Mode.Custom);
 
@@ -328,9 +331,12 @@ namespace Cinemachine
                 return;
             if (!m_Repeating && m_SkipFirst != -1)
                 return;
+            if (m_LimitEnterExit && m_IsObjectEnter)
+                return;
 
             m_ActiveTriggerObjects.Add(other);
             m_OnObjectEnter.Invoke();
+            m_IsObjectEnter = true;
         }
 
         void InternalDoTriggerExit(GameObject other)
@@ -340,8 +346,14 @@ namespace Cinemachine
             m_ActiveTriggerObjects.Remove(other);
             if (!m_OnObjectExit.IsSelectTriggerType(ActionSettings.TriggerMode.Collider))
                 return;
+            if (m_LimitEnterExit && !m_IsObjectEnter)
+                return;
+
             if (enabled)
+            {
                 m_OnObjectExit.Invoke();
+                m_IsObjectEnter = false;
+            }
         }
 
 #if CINEMACHINE_PHYSICS
@@ -360,12 +372,19 @@ namespace Cinemachine
         {
             CancelInvoke();
             InvokeRepeating("TriggerInvoke",0.2f,0.2f);
+            m_IsObjectEnter = false;
         } // For the Enabled checkbox
 
         void TriggerInvoke()
         {
-            m_OnObjectEnter.TriggerInvoke();
-            m_OnObjectExit.TriggerInvoke();
+            if (m_LimitEnterExit && !m_IsObjectEnter)
+            {
+                m_IsObjectEnter = m_OnObjectEnter.TriggerInvoke();
+            }
+            else if(m_LimitEnterExit && m_IsObjectEnter)
+            {
+                m_IsObjectEnter = !m_OnObjectExit.TriggerInvoke();
+            }
         }
 
         public void OtherTriggerEnter()
