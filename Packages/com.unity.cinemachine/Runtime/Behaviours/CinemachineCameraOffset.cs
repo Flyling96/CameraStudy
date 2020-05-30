@@ -24,14 +24,18 @@ public class CinemachineCameraOffset : CinemachineExtension
         + " of the LookAt target as much as possible")]
     public bool m_PreserveComposition;
 
+    public bool m_ScreenProportion;
+
+
 
     [Serializable]
     public struct AutoAdjust
     {
         public enum AutoAdjustMode
         {
-            NearFar,
+            Distance,
             Turn,
+            RunFar,
         }
 
         public AutoAdjust(AutoAdjustMode mode)
@@ -44,11 +48,13 @@ public class CinemachineCameraOffset : CinemachineExtension
             m_AdjustDampingX = 0;
             m_IsTrigger = false;
             m_TriggerTarget = new Vector3(0.7f, 0, 0);
+            m_AdjustMinDic = 3.5f;
         }
 
         public AutoAdjustMode m_AutoAdjustMode;
         [Tooltip("根据远近自动调整的范围")]
         public Vector2 m_AdjustNearFarRange;
+        public float m_AdjustMinDic;
         public float m_AdjustDampingZ;
 
         public string m_TurnAxisName;
@@ -69,7 +75,7 @@ public class CinemachineCameraOffset : CinemachineExtension
                 return;
             }
 
-            if (IsSelectAutoAdjustMode(AutoAdjust.AutoAdjustMode.NearFar))
+            if (IsSelectAutoAdjustMode(AutoAdjustMode.Distance))
             {
                 if (m_AdjustNearFarRange.x >= m_AdjustNearFarRange.y) return;
                 Quaternion inverseRawOrientation = Quaternion.Inverse(state.RawOrientation);
@@ -82,6 +88,11 @@ public class CinemachineCameraOffset : CinemachineExtension
                 else if (dis > m_AdjustNearFarRange.y)
                 {
                     dis = dis - m_AdjustNearFarRange.y;
+                    offset.z += Damper.Damp(dis, m_AdjustDampingZ, deltaTime);
+                }
+                else
+                {
+                    dis = -offset.z;
                     offset.z += Damper.Damp(dis, m_AdjustDampingZ, deltaTime);
                 }
             }
@@ -108,6 +119,24 @@ public class CinemachineCameraOffset : CinemachineExtension
                     offset.x += Damper.Damp(targetOffset, m_AdjustDampingX, deltaTime);
                 }
             }
+
+            if(IsSelectAutoAdjustMode(AutoAdjustMode.RunFar))
+            {
+                CinemachineCore.ActorData actor =  CinemachineCore.Instance.GetActorData();
+                Quaternion inverseRawOrientation = Quaternion.Inverse(state.RawOrientation);
+                Vector3 moveDirCamera = inverseRawOrientation * actor.MoveDirection;
+                if (Mathf.Abs(moveDirCamera.x) > 0.5f || moveDirCamera.z < 0.0f)
+                {
+                    float dis = (inverseRawOrientation * (vcam.Follow.position - state.FinalPosition)).z;
+                    dis = dis - m_AdjustMinDic;
+                    offset.z += Damper.Damp(dis, m_AdjustDampingZ, deltaTime);
+                }
+                else
+                {
+                    float dis = -offset.z;
+                    offset.z += Damper.Damp(dis, m_AdjustDampingZ, deltaTime);
+                }
+            }
         }
 
         private bool IsSelectAutoAdjustMode(AutoAdjustMode type)
@@ -122,7 +151,7 @@ public class CinemachineCameraOffset : CinemachineExtension
         }
     }
 
-    public AutoAdjust m_AutoAdjust = new AutoAdjust(AutoAdjust.AutoAdjustMode.NearFar);
+    public AutoAdjust m_AutoAdjust = new AutoAdjust(AutoAdjust.AutoAdjustMode.Distance);
 
     protected override void PostPipelineStageCallback(
         CinemachineVirtualCameraBase vcam,
@@ -140,7 +169,16 @@ public class CinemachineCameraOffset : CinemachineExtension
                     state.ReferenceLookAt - state.CorrectedPosition, state.ReferenceUp);
             }
 
-            Vector3 offset = state.RawOrientation * m_Offset;
+            Vector3 offset = m_Offset;
+            if (m_ScreenProportion)
+            {
+                float dis = (state.ReferenceLookAt - transform.position).magnitude - offset.z;
+                float disY = Mathf.Tan(25 * Mathf.Deg2Rad) * dis;
+                float disX = disY * Screen.width / Screen.height;
+                offset = new Vector3(disX * m_Offset.x, disY * m_Offset.y, m_Offset.z);
+            }
+
+            offset = state.RawOrientation * offset;
             state.PositionCorrection += offset;
             if (!preserveAim)
             {

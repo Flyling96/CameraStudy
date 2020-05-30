@@ -34,7 +34,7 @@ namespace Cinemachine.Editor
                 SerializedProperty autoAdjustMode = p.FindPropertyRelative(()=> def.m_AutoAdjustMode);
                 autoAdjustMode.intValue = EditorGUILayout.MaskField(autoAdjustMode.displayName, autoAdjustMode.intValue, autoAdjustMode.enumNames);
 
-                int index = 1 << (int)CinemachineCameraOffset.AutoAdjust.AutoAdjustMode.NearFar;
+                int index = 1 << (int)CinemachineCameraOffset.AutoAdjust.AutoAdjustMode.Distance;
                 bool isNearFarCamera = (autoAdjustMode.intValue & index) == index;
                 if (isNearFarCamera)
                 {
@@ -55,6 +55,20 @@ namespace Cinemachine.Editor
                     EditorGUILayout.PropertyField(property);
                     property = p.FindPropertyRelative(() => def.m_AdjustDampingX);
                     EditorGUILayout.PropertyField(property);
+                    EditorGUILayout.Space();
+                }
+
+                index = 1 << (int)CinemachineCameraOffset.AutoAdjust.AutoAdjustMode.RunFar;
+                bool isRunFar = (autoAdjustMode.intValue & index) == index;
+                if(isRunFar)
+                {
+                    SerializedProperty property = p.FindPropertyRelative(() => def.m_AdjustMinDic);
+                    EditorGUILayout.PropertyField(property);
+                    if(!isNearFarCamera)
+                    {
+                        property = p.FindPropertyRelative(() => def.m_AdjustDampingZ);
+                        EditorGUILayout.PropertyField(property);
+                    }
                 }
 
                 p.serializedObject.ApplyModifiedProperties();

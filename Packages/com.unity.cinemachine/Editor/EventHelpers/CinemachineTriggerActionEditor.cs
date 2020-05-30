@@ -71,8 +71,8 @@ namespace Cinemachine.Editor
             expanded = EditorGUI.Foldout(r, expanded, property.displayName, true, mFoldoutStyle);
             if (expanded)
             {
-                SerializedProperty triggerMode = property.FindPropertyRelative(()=> def.m_TriggerMode);
-                triggerMode.intValue = EditorGUILayout.MaskField(triggerMode.displayName,triggerMode.intValue, triggerMode.enumNames);
+                SerializedProperty triggerMode = property.FindPropertyRelative(() => def.m_TriggerMode);
+                triggerMode.intValue = EditorGUILayout.MaskField(triggerMode.displayName, triggerMode.intValue, triggerMode.enumNames);
 
                 int index = 1 << (int)CinemachineTriggerAction.ActionSettings.TriggerMode.InputAxis;
                 bool isInputTrigger = (triggerMode.intValue & index) == index;
@@ -178,6 +178,32 @@ namespace Cinemachine.Editor
                     return targetGameObject.GetComponent<T>();
             }
             return null;
+        }
+
+        [DrawGizmo(GizmoType.Active | GizmoType.Selected | GizmoType.NonSelected, typeof(CinemachineTriggerAction))]
+        private static void DrawTriggerGizmos(CinemachineTriggerAction trigger, GizmoType selectionType)
+        {
+            Gizmos.color = new Color(0, 0, 1, 0.2f);
+            SphereCollider sphere = trigger.transform.GetComponent<SphereCollider>();
+            if (sphere != null)
+            {
+                float maxSize = Mathf.Max(Mathf.Max(trigger.transform.localScale.x, trigger.transform.localScale.y), trigger.transform.localScale.z);
+                Gizmos.DrawSphere(trigger.transform.position + sphere.center, sphere.radius * maxSize);
+            }
+
+            BoxCollider box = trigger.transform.GetComponent<BoxCollider>();
+            if (box != null)
+            {
+                Gizmos.DrawCube(trigger.transform.position + box.center,new Vector3(box.size.x * trigger.transform.localScale.x, 
+                    box.size.y * trigger.transform.localScale.y, box.size.z * trigger.transform.localScale.z));
+            }
+
+            MeshCollider mesh = trigger.transform.GetComponent<MeshCollider>();
+            if(mesh != null)
+            {
+                Gizmos.DrawMesh(mesh.sharedMesh, 0, trigger.transform.position);
+            }
+
         }
     }
 #endif

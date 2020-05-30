@@ -463,5 +463,29 @@ namespace Cinemachine
             }
             return null;
         }
+
+        #region ÓÎÏ·Âß¼­Ïà¹Ø
+        public struct ActorData
+        {
+            public Vector3 Velocity;
+            public Vector3 MoveDirection;
+            public Vector3 Position;
+            public float Rotate;
+        }
+
+        private ActorData m_ActorData;
+
+        public void UpdateExternalData(ActorData actorData)
+        {
+            m_ActorData = actorData;
+        }
+
+        public ActorData GetActorData()
+        {
+            return m_ActorData;
+        }
+
+        #endregion
+
     }
 }

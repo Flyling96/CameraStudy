@@ -49,7 +49,6 @@ namespace Cinemachine
         [Tooltip("Repeat the action for all subsequent trigger entries")]
         public bool m_Repeating = true;
 
-
         /// <summary>Defines what action to take on trigger enter/exit</summary>
         [Serializable]
         public struct ActionSettings
